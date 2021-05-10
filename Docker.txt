@@ -1,0 +1,253 @@
+docker pull nginx
+
+docker images
+
+docker run nginx:latest
+
+docker container ls
+
+docker ps
+
+docker run -d nginx: latest   d ==> detached mode it will run fast
+
+--------------
+Exposing Port
+--------------
+
+docker stop "conatinerId"
+
+docker ps
+
+docker run -d -p 8080:80 nginx: latest   d ==> detached mode it will run fast , p ==> port setting
+
+docker stop "conatinerId"
+
+docker run -d -p 3000:80 nginx: latest   d ==> detached mode it will run fast , p ==> port setting
+
+docker run -d -p 3000:80 -p 8080:80 nginx :latest
+
+
+-------------------
+Managing Containers
+-------------------
+
+docker stop "conatinerName or conatinerId"
+
+docker start "conatinerName or conatinerId"
+
+docker ps --help
+
+docker ps -a
+
+docker rm "conatinerName or conatinerId"   rm ==> remove container
+
+docker ps -aq  ===> gives us unique conatinerId
+
+docker rm $(docker ps -aq) ==> remove all conainers from the conatinerlist , it will work in the powershell
+
+docker rm -f $(docker ps -aq)   f ==> remove the running conatiner by force
+
+
+------------------
+Naming the conatiner
+------------------
+
+docker run --name website -d -p 3000:80 -p 8000:80 nginx:latest
+
+docker stop website
+
+docker start website
+
+--------------------
+docker PS --Format
+--------------------
+
+docker run -name website-two -d -p 9000:80 nginx:latest
+
+docker ps --format="ID\t{{.ID}}\nNAME\t{{.Names}}\nIMAGE\t{{.Image}}\nPORTS\t{{.Ports}}\nCOMMAND\t{{.Command}}\nCREATED\t{{.CreatedAt}}\nSTATUS\t{{.Status}}\n"
+
+export FORMAT = "ID\t{{.ID}}\nNAME\t{{.Names}}\nIMAGE\t{{.Image}}\nPORTS\t{{.Ports}}\nCOMMAND\t{{.Command}}\nCREATED\t{{.CreatedAt}}\nSTATUS\t{{.Status}}\n"
+
+docker ps
+
+docker ps --format = $FORMAT
+
+----------------
+Docker Volumes
+----------------
+
+docker run --name website -p 8080:80 nginx
+
+docker run --name website -v "$(pwd):/usr/share/nginx/html:ro" -d -p 8080:80 nginx ==> html page will be displayed in the localhost in the readyOnly
+
+docker exec -it website bash ==> to open the bash terminal
+
+ls -al
+
+cd /usr/share/nginx/html
+
+ls -al
+
+touch about.html  ==> get the read-only error
+
+exit
+
+
+docker run --name website -v "$(pwd):/usr/share/nginx/html" -d -p 8080:80 nginx ==> html page will be displayed in the localhost in the readyOnly
+
+
+docker exec -it website bash ==> to open the bash terminal
+
+ls -al
+
+cd /usr/share/nginx/html
+
+ls -al
+
+touch about.html
+
+exit
+
+
+------------------------
+Volumes (between the Containers)
+------------------------
+
+docker run --name website-copy --volumes-from website -d -p 8081:80 nginx  ==> share the data from website conatiner to website-copy container
+
+
+---------------------
+Building the Own Docker Images
+----------------------
+docker run --name website -v "$(pwd):/usr/share/nginx/html" -d -p 8080:80 nginx
+
+docker build --tag website:latest .
+
+docker image ls
+
+docker run --name website -p 8080:80 -d website:latest
+
+docker build -t user-service-api:latest .
+
+docker run --name user-service-api -d -p 8080:3000 user-service-api:latest
+
+-------------------
+Caching and Layers
+-------------------
+
+docker build -t user-service-api:latest .
+
+docker run --name user-service-api -d -p 8080:3000 user-service-api:latest
+
+//change the code in the project it will use the CACHE
+
+docker build -t user-service-api:latest .
+
+docker ps
+
+docker rm -f user-service-api
+
+docker run --name user-service-api -d -p 8080:3000 user-service-api:latest
+
+---------------------
+PULLING ALPINE IMAGES
+---------------------
+
+docker pull node:10.21.0-alpine
+
+docker pull nginx:alpine
+
+docker image rm "conatinerName"
+
+docker image ls
+
+docker build -t user-service-api:10.21.0 .
+
+----------------------------
+TAGS , VERSIONS and TAGGING
+----------------------------
+
+docker build -t website .
+
+docker build -t user-service-api:10.21.0 .
+
+docker run --name website -d -p 3000:80 nginx:latest
+
+docker run --name user-service-api -d -p 8080:3000 user-service-api:latest
+
+----------------
+TAGGING OVERRIDE
+----------------
+
+docker image ls
+
+// change the versions in the docker file so that it will OVERRIDE the image
+
+docker build -t website:latest .
+
+docker image ls
+
+-------------------
+TAGGING OWN IMAGES
+-------------------
+
+docker build -t user-service-api:latest
+
+docker tag user-service-api:latest user-service-api:2
+
+------------------------------------------
+RUNNING THE CONTAINERS WITH DIFFERENT TAGS
+------------------------------------------
+docker run --name balu-website-latest -p 8080:80 -d pavan-website:latest
+
+docker tag pavan-website:latest pavan-website:2
+
+docker run --name balu-website-2 -p 8081:80 -d pavan-website:2
+
+docker tag pavan-website:latest pavan-website:1
+
+docker run --name balu-website-1 -p 8082:80 -d pavan-website:1
+
+----------------------------
+PUSHING IMAGES TO DOCKER HUB
+----------------------------
+
+docker tag pavan-website:1 balu9010/website:1
+
+docker tag pavan-website:2 balu9010/website:2
+
+docker tag pavan-website:latest balu9010/website:latest
+
+docker login
+
+docker push balu9010/website:1
+
+docker push balu9010/website:2
+
+docker push balu9010/website:latest
+
+-------------------
+PULLING OWN IMAGES
+-------------------
+
+docker pull balu9010/website
+
+---------------
+DOCKER INSPECT
+---------------
+
+docker inspect "conatinerId"
+
+------------
+DOCKER LOGS
+------------
+
+docker logs "conatinerId"
+
+docker logs -f "conatinerId"
+
+-----------
+DOCKER exec
+-----------
+
+docker exec --it "conatinerId" /bin/sh
